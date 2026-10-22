@@ -1,8 +1,9 @@
 import { defineConfig } from 'vitepress';
+import { withPwa } from '@vite-pwa/vitepress';
 import furigana from 'furigana-markdown-it';
 import { sidebar } from './sidebar.mts'; 
 
-export default defineConfig({
+export default withPwa(defineConfig({
   title: "Cure Dolly",
   description: "in markdown",
   srcDir: 'docs',
@@ -94,5 +95,26 @@ export default defineConfig({
       message: 'Created by <a href="https://bento.me/kln">Kellen</a>',
       copyright: 'Originally transripted by <a href="https://docs.google.com/document/d/1XpuXerkGU8waJ4DPDNJA4bGeqOvM-csXjTe57iHARHc">nunko/dinuz</a>.'
     }
+  },
+
+  // Offline support: precache every page and image so the whole guide works without internet.
+  pwa: {
+    outDir: '../.vitepress/dist', // relative to srcDir ('docs')
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Cure Dolly Grammar guide',
+      short_name: 'Cure Dolly',
+      theme_color: '#1b1b1f',
+      background_color: '#1b1b1f',
+      display: 'standalone',
+      icons: [
+        { src: 'android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+        { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
+      ]
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,json,ico,png,svg,webp,woff2}'],
+      maximumFileSizeToCacheInBytes: 10 * 1024 * 1024
+    }
   }
-});
+}));
