@@ -59,6 +59,7 @@ export default withPwa(defineConfig({
       'link',
       { rel: 'icon', href: '/cure-script/favicon.ico' }
     ],
+    ['script', { src: `${process.env.VITE_BASE_URL || ''}/offline.js`, defer: '' }],
     [
       'link',
       { href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet', rel: 'stylesheet' }
@@ -99,8 +100,12 @@ export default withPwa(defineConfig({
 
   // Offline support: precache every page and image so the whole guide works without internet.
   pwa: {
-    outDir: '../.vitepress/dist', // relative to srcDir ('docs')
-    registerType: 'autoUpdate',
+    // Custom service worker (config/.vitepress/sw.js): downloads in parallel and reports progress.
+    strategies: 'injectManifest',
+    srcDir: '../.vitepress', // relative to srcDir ('docs')
+    filename: 'sw.js',
+    outDir: '../.vitepress/dist',
+    injectRegister: false, // registered by docs/public/offline.js
     manifest: {
       name: 'Cure Dolly Grammar guide',
       short_name: 'Cure Dolly',
@@ -112,8 +117,10 @@ export default withPwa(defineConfig({
         { src: 'android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
       ]
     },
-    workbox: {
+    injectManifest: {
       globPatterns: ['**/*.{js,css,html,json,ico,png,svg,webp,woff2}'],
+      // Russian pages stay online-only: they are not needed offline and add ~300 files.
+      globIgnores: ['ru/**', 'assets/ru_*', 'assets/chunks/@localSearchIndexru.*'],
       maximumFileSizeToCacheInBytes: 10 * 1024 * 1024
     }
   }
